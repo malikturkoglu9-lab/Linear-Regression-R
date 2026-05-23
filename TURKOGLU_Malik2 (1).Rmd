@@ -11,36 +11,18 @@ library(questionr)
 library(forcats)
 library(ggplot2)
 ```
-
+The commentaries in this document were originally in french, to make sure the code still works I kept the same name for the variables.
 I) Introduction
 
+Here, we're taking a look at a dataframe about a group of fish.
+Thesere are the different variables:
+Id: the identifier of the fish
+Viscera.weight : the weight of the viscera of the fish
+Diameter : diameter of the fish
+Dim3: measurement of the fish on the third axis 
 
-On s'intéresse ici à un jeu de données qui concernent un groupe de poisson. 
-Les variable sont les suivantes:
-
-Id: identifiant du poisson
-
-Viscera.weight: le poids des viscères du poisson
-
-Diameter: le diamètre du poisson 
-
-Dim3: mesure du poisson selon l'axe 3On a q
-
-
-Ici, on cherche à obtenir des modèles de régression linéaire qui permettent d'estimer la variable Viscera.weight à
-
-partir de la variable Diameter dans un premier temps , puis à partir de la variable Dim3.
-
-On cherche à estimer la variable  Viscera.weight, le poids des viscères  à partir de la variable Diameter ou à partir
-
-de la variable Dim3.
-
-
-
-
-
-
-
+What we're trying to do is obtain linear regression models that allow to estimate Viscera.weight's value firstly, using
+the Diameter, then using Dim3.
 
 
 ```{r}
@@ -50,7 +32,7 @@ donnees <- read.csv( file = "TURKOGLU_MALIK.csv",
                      stringsAsFactors = TRUE)
 ```
 
-II) Estimation de Viscera.weight en fonction de Diameter
+II) Establish a linear model to estimate Viscera.weight with the Diameter
 
 
 
@@ -59,11 +41,11 @@ II) Estimation de Viscera.weight en fonction de Diameter
 resultat <- lm(formula = Viscera.weight~Diameter,
                data = donnees)
 ```
-On met dans la variable resultat  la variable qu'on veut expliquer et la variable explicative, ça nous permet
+In order to get the results of the calculation of the lineary 
+We put inside the variable resultat using the function lm the variable we want to explain and the explicative variable, it gives us 
+the result of the calculation of the regression model
 
-d'obtenir le calcul du modèle linéaire.
-
-Maintenant, on  trace le nuage de points qui montre l'évolution du poids des viscères selon le diamètre.
+Now, we draw the scatter clount showing the evolution of Viscera.weight depending on the Diameter
 
 
 ```{r}
@@ -78,16 +60,13 @@ ggplot(
   ylab("Viscera.weight(g)")
 ```
 
+The line doesn't follow the evolution of Viscera.weight depending on the diameter. It seems more apporpriate to draw a curve here.
 
-La droite ne suit pas l'évolution du poids des viscères en fonction du diamètre. Il semble plus approprié ici de
+To get the curve, we will use FunctionModel
 
-tracer une courbe. 
+To start , we create two new variables , Viscera.weightLog and DiameterLog who will respectively contain  the results of the
+Logarithmique function applied to Viscera.weight and Diameter
 
-Pour tracer une courbe, on va utiliser la fonction FunctionModel.
-
-On commence par créér deux nouvelles variables Viscera.weightLog et DiameterLog qui seront respectivement les
-
-résultats de la fonction logarithmique appliquée aux variables Viscera.weight et Diameter.
 ```{r}
 donnees$Viscera.weightLog <- log10(donnees$Viscera.weight)
 ```
@@ -97,7 +76,7 @@ donnees$Viscera.weightLog <- log10(donnees$Viscera.weight)
 donnees$DiameterLog <- log10(donnees$Diameter)
 ```
 
-On utilise encore ici la fonction lm  pour calculer le modèle linéaire entre les variables logarithmiques.
+We use the function lm here again to calculate the new linear regression model
 
 
 ```{r}
@@ -105,8 +84,8 @@ res <-lm(formula = Viscera.weightLog~DiameterLog,
                data = donnees)
 ```
 
+then, we draw the evolution of  viscera.weight depending on the diamer with the data at logaithimic scale
 
-On trace ensuite l'évolution du poids en fonction du diamètre avec les données à l'échelle logarithmique.
 
 ```{r}
 ggplot(
@@ -123,13 +102,8 @@ ggplot(
 
 
 
-On voit que les points sont autour de la droite, les variables semblent corrélées, on peut poursuivre l'étude du modèle.
 
-
-Maintenant , on reprend les données d'origines et on trace un graphique à l'échelle logarithmique en appliquant les
-
-coefficients du modèle linéaire de LogViscera.weight en fonction de LogDiameter.
-
+Now, we take the original data and put them to logarithmic scale by applying the coefficient of the linear model of LogViscera.weight  depending on LogDiameter
 ```{r}
 functionModel <- function(x){10^res$coefficients[1]*x^res$coefficients[2]}
 ggplot(
@@ -147,31 +121,42 @@ Ce modèle semble  précis , les points sont autour de la courbe.
 
 On peut poursuivre et calculer le modèle de régression.
 
+This model seems accurate, the point are around the curve.
+
+We can go on and calculate the regression model
 ```{r}
 summary(res)
 ```
-On a un coefficient de détermination R² de 0,7031, il est supérieur à p-value donc on peut continuer avec le modèle.
-
- R² vaut 0,7031 ce qui signifie, qu'on a 70,31% de la variance de Viscera.weightLog
-
-est expliqué par la variable DiameterLog. Ainsi, on a   Viscera.weightLog = 1,7397*DiameterLog -4,11.
-
-On peut dire qu'à chaque fois que DiameterLog monte de 1 WeightLog augmente de 1,73.
 
 
 
-III) Estimation de Viscera.weight à partir de Dim3
-
-On étudie maintenant  le lien entre Dim3 et Viscera.weight
 
 
-On calcule le modèle de régresion linéaire  de la variable Viscera.weight en fonction de la variable Dim3.
+We have a coefficient of determination R² of 0.7031, he's higher than the p-value, which means it's valid and we can go on with this model.
+
+R² is worth 0.7031 which means that 70.31% of the variance of Viscera.weightLog is explained by the variable DiameterLog.
+
+Therefore, we have Viscera.weightLog = 1,7397*DiameterLog - 4.11.
+
+We can say that each time DiameterLog goes up by 1 WeightLog goes up by 1.73.
+
+
+
+III)  Estimating Viscera.weight using Dim3
+
+
+
+Now, we studie the link between Dim3 and Viscera.weight.
+To start, we calculate the linear regression model  of Viscera.weight depending on Dim3
+
+
 ```{r}
 resultat2 <- lm(formula = Viscera.weight~Dim3,
                 data = donnees)
 ```
 
-On trace le nuage de points qui montre l'évolution  du poids des viscères en fonction de Dim3.
+
+Now, we draw the scatter plot that shows the evolution of the weight of the viscera depending on Dim3
 
 ```{r}
 
@@ -186,18 +171,18 @@ ggplot(
   ylab("Viscera.weight(g)")
 ```
 
-Ici, on remarque une tendance , cependant la droite ne la suit pas , on peut essayer d'enlever les deux valeurs très
-
-éloignées. 
+We can notice a tendancy, however the line doesn't follow it , we can try to erase the two values that seem really different compared to the rest
 
 
 ```{r}
  z <-subset(x = donnees, Dim3 < 930)
 ```
 
-On utilise la fonction Subset pour supprimer les valeurs qui sont beaucoup plus grandes que les autres afin d'obtenir
+*We use the function Subset to delete the values that are too much bigger than the others to get a line that follows
 
-une droite qui suit mieux la tendance des points.
+the points tendency better.
+
+
 
 ```{r}
 ggplot(
@@ -214,11 +199,10 @@ ggplot(
 Après avoir enlevé les valeurs atypiques, on obtient un graphique avec  tous les points qui suivent l'allure de la
 
 droite. 
+After taking out the outilers, we get a graph with every points that follow the trajectory of the line
 
 
-
-On calcule à nouveau le modèle de régression linéaire sans les données aberrantes.
-
+We calculate the linear regression model again without the outliers 
 
 ```{r}
 res2 <-lm(formula = Viscera.weight~Dim3,
@@ -226,41 +210,37 @@ res2 <-lm(formula = Viscera.weight~Dim3,
 ```
 
 
-On calcule à nouveau le modèle de régression linéaire sans les données aberrantes.
 
 
-On affiche le résumé du calcul avec les nouvelles données.
+We print the summary of the new results
 
 ```{r}
 summary(res2)
 ```
-On a un R² de 0,9221 qui est supérieur à la p-value donc on peut poursuivre avec le modèle.
 
- R² vaut 0.9221 ce qui signifie  que 92,21% de la variance du poids qui est expliquée par Dim3. 
+Here, R² is  worth 0.9221 which is higher than the p-value, so it's valid and we can continue the study.
 
-On a Viscera.weight = Dim3*0,32672 -5,52 
+R² being worth 0.9221,  we can say that 92.21% of the variance of Viscera.weight  is explained by Dim3.
 
-A chaque fois que Dim3 augmente de 1 le poids des viscères augmente de 0,32.
+We have Viscera.weight = Dim3 * 0.32672 - 5.52.
+
+Every tim Dim3 goes up by 1 Viscera.weight goes up by 0,32.
+
 
 IV) Conclusion
 
-Ainsi , on a deux modèles linéaires qui permettent d'estimer le poids des viscères des poissons:
+Finaly, we have two linear regression models who allow us to estimate the fish's weight of viscera:
 
+Visceara.weightLog = 1,7397*DiameterLog - 4.11
 
-Viscera.weightLog = 1,7397*DiameterLog -4,11.
-
+And
 
 Viscera.weight = Dim3*0,32672 -5,52  
 
+These two models respectively got R² worth 70.31% and 92.21%.
 
-
-Ces deux modèles ont respectivement des R² qui valent 70,31% et 92,21%.
-
-
-On peut par conséquent en déduire qu'il est plus facile d'obtenir une idée précise du poids des viscères à partir de
-
-
-Dim3, puisque le modèle avec Dim3 explique une plus grande partie de la variance de Viscera.weight.
+The second's model R² being higher allows us to understand that getting an accurate idea of the weight of the viscera is
+easier using Dim3 , since it explains a higher part of Viscera.weight's variance.
 
 
 
